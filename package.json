@@ -14,5 +14,8 @@
   "type": "module",
   "workspaces": [
     "src/chatapp_frontend"
-  ]
+  ],
+  "dependencies": {
+    "artemis-web3-adapter": "^0.5.0"
+  }
 }
