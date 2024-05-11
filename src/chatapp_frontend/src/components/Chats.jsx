@@ -8,11 +8,9 @@ const Chats = ({ onUserNameSubmit }) => {
   const [isConnected, setIsConnected] = useState(false)
   const [receiverPrincipalId, setReceiverPrincipalId] = useState('')
   const [sentMessage, setSentMessage] = useState('')
-  const [messages, setMessages] = useState(() => {
-    // Retrieve messages from localStorage on component mount
-    const storedMessages = localStorage.getItem('chatapp_messages')
-    return storedMessages ? JSON.parse(storedMessages) : []
-  })
+  const [messages, setMessages] = useState([])
+  const [data, setData] = useState(null)
+  const [messagesData, setMessagesData] = useState([])
 
   const connectWallet = async () => {
     try {
@@ -26,13 +24,31 @@ const Chats = ({ onUserNameSubmit }) => {
     }
   }
 
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        // Call the getMessages function here
+        const messages = await chatapp_backend.getMessages()
+        console.log('Messages:', messages)
+        setMessagesData(messages)
+      } catch (error) {
+        console.error('Error fetching messages:', error)
+      }
+    }
+
+    // Call fetchMessages initially and then every 10 seconds
+    fetchMessages()
+    const intervalId = setInterval(fetchMessages, 10000)
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(intervalId)
+  }, []) // Empty dependency array ensures this effect runs only once on mount
+
   const handlePrincipalIdChange = (event) => {
-    console.log('Receiver principal ID changed:', event.target.value)
     setReceiverPrincipalId(event.target.value)
   }
 
   const handleSendMessageChange = (event) => {
-    console.log('Message changed:', event.target.value)
     setSentMessage(event.target.value)
   }
 
@@ -45,54 +61,61 @@ const Chats = ({ onUserNameSubmit }) => {
       console.error('Error sending receiver principal ID to backend:', error)
     }
   }
+  const checkToxicity = async (message) => {
+    // Replace with your actual Gemini API key
+    const apiKey = 'AIzaSyBSX1CACqI6S9OBscb7TT08INLWiw7deL0'
+
+    const url = new URL('https://api.gemini.ai/v1/predict/toxicity')
+    url.searchParams.append('text', message)
+    url.searchParams.append('api_key', apiKey)
+
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.ok) {
+        throw new Error('Error fetching toxicity prediction')
+        console.error('Error fetching toxicity prediction')
+      }
+
+      const data = await response.json()
+      console.log('Toxicity prediction:', data)
+      const isToxic = data.results[0].toxicity > 0.5 // Adjust threshold as needed
+      console.log('Is toxic:', isToxic)
+      return isToxic ? 'toxic' : 'non-toxic'
+    } catch (error) {
+      console.error('Error checking message toxicity:', error)
+      return 'unknown' // Handle potential errors gracefully
+    }
+  }
 
   const handleSend = async (event) => {
     event.preventDefault()
     try {
       console.log('Send message to backend:', sentMessage)
-      chatapp_backend.sendMessage(sentMessage)
+      const isToxic = await checkToxicity(sentMessage)
+
+      if (isToxic === 'toxic') {
+        // Handle toxic message (e.g., warn user, don't send)
+        console.warn('Message is considered toxic')
+        return
+      }
+
+      chatapp_backend.sendMessage(sentMessage, artemisAdapter.principalId)
 
       const newMessage = {
         sender: artemisAdapter.principalId,
         content: sentMessage,
         timestamp: new Date().toLocaleString(),
       }
-      console.log('New message:', newMessage)
       setMessages([...messages, newMessage])
-      console.log('Messages after sending:', messages)
       setSentMessage('')
-
-      // Store messages in localStorage
-      localStorage.setItem(
-        'chatapp_messages',
-        JSON.stringify([...messages, newMessage])
-      )
     } catch (error) {
       console.error('Error sending message to backend:', error)
     }
   }
-
-  useEffect(() => {
-    console.log('Polling for new messages...')
-    const interval = setInterval(async () => {
-      try {
-        const newMessages = await chatapp_backend.getMessages()
-        console.log('New messages retrieved:', newMessages)
-        setMessages(newMessages)
-        console.log('Messages after polling:', newMessages)
-        // Store messages in localStorage
-        localStorage.setItem('chatapp_messages', JSON.stringify(newMessages))
-      } catch (error) {
-        console.error('Error retrieving messages:', error)
-      }
-    }, 10000) // Poll every 10 seconds
-
-    // Clean up the interval on component unmount
-    return () => {
-      console.log('Clearing interval...')
-      clearInterval(interval)
-    }
-  }, []) // No dependency array, so the effect runs on every render
 
   return (
     <div className="connect-container">
@@ -122,7 +145,7 @@ const Chats = ({ onUserNameSubmit }) => {
                 </form>
               </div>
               <div className="message-container">
-                <h3>Messages:</h3>
+                <h3>Send Messages:</h3>
                 {messages.map((message, index) => (
                   <div className="message" key={index}>
                     <p>
@@ -138,6 +161,25 @@ const Chats = ({ onUserNameSubmit }) => {
                     </p>
                   </div>
                 ))}
+              </div>
+              <div className="message-container">
+                <h3>Received Messages:</h3>
+                {messagesData.length > 0 && (
+                  <div className="message" key={messagesData.length - 1}>
+                    <p>
+                      <span className="sender">Sender:</span>{' '}
+                      {messagesData[messagesData.length - 1].sender}
+                    </p>
+                    <p>
+                      <span className="content">Message:</span>{' '}
+                      {messagesData[messagesData.length - 1].content}
+                    </p>
+                    <p>
+                      <span className="timestamp">Timestamp:</span>{' '}
+                      {messagesData[messagesData.length - 1].timestamp}
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
           </div>
