@@ -1,0 +1,76 @@
+.chat {
+  flex: 2;
+  border-right: 1px solid #dddddd35;
+  height: 100%;
+  display: flex;
+  font-family: 'Outfit', sans-serif;
+}
+
+.bottom {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  margin-bottom: auto;
+  bottom: 0;
+
+  gap: 20px;
+
+  .icons {
+    display: flex;
+    gap: 20px;
+  }
+
+  img {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  input {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    outline: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    width: 100%;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  .emoji {
+    position: relative;
+
+    .picker {
+      position: absolute;
+      bottom: 50px;
+    }
+  }
+
+  .sendButton {
+    background-color: #7835e3;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:disabled {
+      background-color: #5182feb4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.chat .top .user .texts span,
+.chat .top .user .texts p,
+.chat .center .message .texts p,
+.chat .bottom input {
+  font-family: 'Outfit', sans-serif; /* Change font family to Outfit */
+}

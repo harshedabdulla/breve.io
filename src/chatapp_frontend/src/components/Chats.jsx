@@ -3,14 +3,16 @@ import { Artemis } from 'artemis-web3-adapter'
 import { chatapp_backend } from '../../../declarations/chatapp_backend'
 import './style.css'
 
-const Connect = ({ onUserNameSubmit }) => {
+const Chats = ({ onUserNameSubmit }) => {
   const [artemisAdapter, setArtemisAdapter] = useState(null)
   const [isConnected, setIsConnected] = useState(false)
   const [receiverPrincipalId, setReceiverPrincipalId] = useState('')
   const [sentMessage, setSentMessage] = useState('')
-  const [messages, setMessages] = useState([])
-  const [data, setData] = useState(null)
-  const [messagesData, setMessagesData] = useState([])
+  const [messages, setMessages] = useState(() => {
+    // Retrieve messages from localStorage on component mount
+    const storedMessages = localStorage.getItem('chatapp_messages')
+    return storedMessages ? JSON.parse(storedMessages) : []
+  })
 
   const connectWallet = async () => {
     try {
@@ -24,31 +26,13 @@ const Connect = ({ onUserNameSubmit }) => {
     }
   }
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        // Call the getMessages function here
-        const messages = await chatapp_backend.getMessages()
-        console.log('Messages:', messages)
-        setMessagesData(messages)
-      } catch (error) {
-        console.error('Error fetching messages:', error)
-      }
-    }
-
-    // Call fetchMessages initially and then every 10 seconds
-    fetchMessages()
-    const intervalId = setInterval(fetchMessages, 10000)
-
-    // Clean up the interval on component unmount
-    return () => clearInterval(intervalId)
-  }, []) // Empty dependency array ensures this effect runs only once on mount
-
   const handlePrincipalIdChange = (event) => {
+    console.log('Receiver principal ID changed:', event.target.value)
     setReceiverPrincipalId(event.target.value)
   }
 
   const handleSendMessageChange = (event) => {
+    console.log('Message changed:', event.target.value)
     setSentMessage(event.target.value)
   }
 
@@ -66,19 +50,49 @@ const Connect = ({ onUserNameSubmit }) => {
     event.preventDefault()
     try {
       console.log('Send message to backend:', sentMessage)
-      chatapp_backend.sendMessage(sentMessage, artemisAdapter.principalId)
+      chatapp_backend.sendMessage(sentMessage)
 
       const newMessage = {
         sender: artemisAdapter.principalId,
         content: sentMessage,
         timestamp: new Date().toLocaleString(),
       }
+      console.log('New message:', newMessage)
       setMessages([...messages, newMessage])
+      console.log('Messages after sending:', messages)
       setSentMessage('')
+
+      // Store messages in localStorage
+      localStorage.setItem(
+        'chatapp_messages',
+        JSON.stringify([...messages, newMessage])
+      )
     } catch (error) {
       console.error('Error sending message to backend:', error)
     }
   }
+
+  useEffect(() => {
+    console.log('Polling for new messages...')
+    const interval = setInterval(async () => {
+      try {
+        const newMessages = await chatapp_backend.getMessages()
+        console.log('New messages retrieved:', newMessages)
+        setMessages(newMessages)
+        console.log('Messages after polling:', newMessages)
+        // Store messages in localStorage
+        localStorage.setItem('chatapp_messages', JSON.stringify(newMessages))
+      } catch (error) {
+        console.error('Error retrieving messages:', error)
+      }
+    }, 10000) // Poll every 10 seconds
+
+    // Clean up the interval on component unmount
+    return () => {
+      console.log('Clearing interval...')
+      clearInterval(interval)
+    }
+  }, []) // No dependency array, so the effect runs on every render
 
   return (
     <div className="connect-container">
@@ -108,7 +122,7 @@ const Connect = ({ onUserNameSubmit }) => {
                 </form>
               </div>
               <div className="message-container">
-                <h3>Send Messages:</h3>
+                <h3>Messages:</h3>
                 {messages.map((message, index) => (
                   <div className="message" key={index}>
                     <p>
@@ -125,25 +139,6 @@ const Connect = ({ onUserNameSubmit }) => {
                   </div>
                 ))}
               </div>
-              <div className="message-container">
-                <h3>Received Messages:</h3>
-                {messagesData.length > 0 && (
-                  <div className="message" key={messagesData.length - 1}>
-                    <p>
-                      <span className="sender">Sender:</span>{' '}
-                      {messagesData[messagesData.length - 1].sender}
-                    </p>
-                    <p>
-                      <span className="content">Message:</span>{' '}
-                      {messagesData[messagesData.length - 1].content}
-                    </p>
-                    <p>
-                      <span className="timestamp">Timestamp:</span>{' '}
-                      {messagesData[messagesData.length - 1].timestamp}
-                    </p>
-                  </div>
-                )}
-              </div>
             </section>
           </div>
         </div>
@@ -152,4 +147,4 @@ const Connect = ({ onUserNameSubmit }) => {
   )
 }
 
-export default Connect
+export default Chats
