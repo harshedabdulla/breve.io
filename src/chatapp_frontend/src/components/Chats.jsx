@@ -63,7 +63,9 @@ const Chats = ({ onUserNameSubmit }) => {
   }
   const checkToxicity = async (message) => {
     // Replace with your actual Gemini API key
+    
     const apiKey = 'AIzaSyBSX1CACqI6S9OBscb7TT08INLWiw7deL0'
+    const prompt = "reply me either 1 or 0, analyse the text for charecterestics that might be harrassing and return 1 if you find harrassing charecters else 0 if not "
 
     const url = new URL('https://api.gemini.ai/v1/predict/toxicity')
     url.searchParams.append('text', message)
