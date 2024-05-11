@@ -1,22 +1,32 @@
-# `chatapp`
+# `breve.io`
 
-Welcome to your new `chatapp` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+In today's digital age, even one-sided communication can have unintended consequences. Inappropriate wording or messages sent in the heat of the moment can cause emotional distress. Breve addresses this concern by offering a platform where users can express themselves freely, but with the added assurance that their impulsive or offensive messages are never transmitted.
+
+Here's where Breve's magic happens: a built-in AI language model analyzes outgoing messages for potential toxicity or the presence of sensitive information. This analysis occurs entirely within the application, ensuring that your privacy remains completely protected.
+
+Imagine the possibilities: a platform that fosters open communication while safeguarding users from emotional harm and privacy breaches. Breve leverages the power of decentralization to achieve this balance, offering a win-win situation for everyone involved.
+
+ICP stands for internet computer protocol, its a layer 1 blockchain, which provides more features than the traditional blockchain. Also the current blockchain stack is quite tough to understand. Abstraction of smart contracts , back end and database all into a superfast , large network helps any block chain developer to devlop using motoko and icp. 
+
+Project details: dvjm4-qgttz-pi6en-pzsqa-pos53-tizlb-crg4y-xywvo-xb2kn-intwa-dqe
 
 To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
 
-To learn more before you start working with `chatapp`, see the following documentation available online:
+To learn more before you start working with `breve.io`, see the following documentation available online:
 
 - [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
 - [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
 - [Motoko Programming Language Guide](https://internetcomputer.org/docs/current/motoko/main/motoko)
 - [Motoko Language Quick Reference](https://internetcomputer.org/docs/current/motoko/main/language-manual)
 
-If you want to start working on your project right away, you might want to try the following commands:
+If you want to start working on your project right away, you might want to try the following commands(open each dfx commands in different terminal windows):
 
 ```bash
 cd chatapp/
-dfx help
-dfx canister --help
+dfx start
+dfx deploy
+cd src/chatapp_frontend
+npm start
 ```
 
 ## Running the project locally
