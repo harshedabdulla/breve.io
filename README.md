@@ -8,7 +8,7 @@ Imagine the possibilities: a platform that fosters open communication while safe
 
 ICP stands for internet computer protocol, its a layer 1 blockchain, which provides more features than the traditional blockchain. Also the current blockchain stack is quite tough to understand. Abstraction of smart contracts , back end and database all into a superfast , large network helps any block chain developer to devlop using motoko and icp. 
 
-Project details: dvjm4-qgttz-pi6en-pzsqa-pos53-tizlb-crg4y-xywvo-xb2kn-intwa-dqe
+Project details: https://docs.google.com/presentation/d/1a-OEWD11-oWj1zq4LDaIcG5OF0tb6WOXdnD-q3t4BB0/edit?usp=sharing
 
 To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
 
